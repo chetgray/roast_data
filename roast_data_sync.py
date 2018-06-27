@@ -3,10 +3,20 @@
 import argparse
 
 import dateparser
+from googleapiclient.discovery import build
+from httplib2 import Http
+import oauth2client as oa
 
 
 def main(secret_path='client_secret.json', db_path='roast_data.sqlite', after_date=None):
-    pass
+    # From https://developers.google.com/gmail/api/quickstart/python
+    SCOPES = 'https://www.googleapis.com/auth/gmail.readonly'
+    store = oa.file.Storage('credentials.json')
+    creds = store.get()
+    if not creds or creds.invalid:
+        flow = oa.client.flow_from_clientsecrets(secret_path, SCOPES)
+        creds = oa.tools.run_flow(flow, store)
+    service = build('gmail', 'v1', http=creds.authorize(Http(cache=".cache")))
 
 
 if __name__ == '__main__':
