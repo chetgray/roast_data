@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import datetime
 
 import dateparser
 from googleapiclient.discovery import build
@@ -8,7 +9,8 @@ from httplib2 import Http
 import oauth2client as oa
 
 
-def main(secret_path='client_secret.json', db_path='roast_data.sqlite', after_date=None):
+def main(secret_path='client_secret.json', db_path='roast_data.sqlite',
+         after_date=datetime.date.min.strftime('%Y/%m/%d')):
     # From https://developers.google.com/gmail/api/quickstart/python
     SCOPES = 'https://www.googleapis.com/auth/gmail.readonly'
     store = oa.file.Storage('credentials.json')
@@ -26,6 +28,7 @@ if __name__ == '__main__':
     parser.add_argument('--database', dest='db_path', default='roast_data.sqlite',
                         help="SQLite database file")
     parser.add_argument('--after', dest='after_date',
+                        default=datetime.date.min.strftime('%Y/%m/%d'),
                         type=lambda s: dateparser.parse(s).strftime('%Y/%m/%d'))
 
     args = parser.parse_args()
