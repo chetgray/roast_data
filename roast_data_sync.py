@@ -11,8 +11,8 @@ import oauth2client as oa
 
 def main(db_path='roast_data.sqlite', secret_path='client_secret.json',
          after_date=datetime.date.min.strftime('%Y/%m/%d'),
-         csv_file=None):
-    if csv_file is not None:
+         csv_files=None):
+    if csv_files is not None:
         pass
     else:
         # From https://developers.google.com/gmail/api/quickstart/python
@@ -34,9 +34,9 @@ if __name__ == '__main__':
     parser.add_argument('--after', dest='after_date',
                         default=datetime.date.min.strftime('%Y/%m/%d'),
                         type=lambda s: dateparser.parse(s).strftime('%Y/%m/%d'))
-    parser.add_argument('csv_file', nargs='?', type=argparse.FileType('r'),
-                        help="CSV file to import")
+    parser.add_argument('csv_files', nargs='*', type=argparse.FileType('r'),
+                        help="CSV file(s) to import")
 
     args = parser.parse_args()
     main(db_path=args.db_path, secret_path=args.secret_path,
-         after_date=args.after_date, csvfile=args.csv_file)
+         after_date=args.after_date, csv_files=args.csv_files)
