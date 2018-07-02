@@ -10,7 +10,8 @@ import oauth2client as oa
 
 
 def main(db_path='roast_data.sqlite', secret_path='client_secret.json',
-         after_date=datetime.date.min.strftime('%Y/%m/%d')):
+         after_date=datetime.date.min.strftime('%Y/%m/%d'),
+         csv_file=None):
     # From https://developers.google.com/gmail/api/quickstart/python
     SCOPES = 'https://www.googleapis.com/auth/gmail.readonly'
     store = oa.file.Storage('credentials.json')
@@ -30,7 +31,9 @@ if __name__ == '__main__':
     parser.add_argument('--after', dest='after_date',
                         default=datetime.date.min.strftime('%Y/%m/%d'),
                         type=lambda s: dateparser.parse(s).strftime('%Y/%m/%d'))
+    parser.add_argument('csv_file', nargs='?', type=argparse.FileType('r'),
+                        help="CSV file to import")
 
     args = parser.parse_args()
     main(db_path=args.db_path, secret_path=args.secret_path,
-         after_date=args.after_date)
+         after_date=args.after_date, csvfile=args.csv_file)
