@@ -26,7 +26,8 @@ def main(db_path='roast_data.sqlite', secret_path='client_secret.json',
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Synchronize roast database with latest roast logs.")
+    parser = argparse.ArgumentParser(description="Synchronize roast database with latest roast logs.",
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--database', dest='db_path', default='roast_data.sqlite',
                         help="SQLite database file")
     parser.add_argument('--secret', dest='secret_path', default='client_secret.json',
