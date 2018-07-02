@@ -2,6 +2,7 @@
 
 import argparse
 import datetime
+import sqlite3
 
 import dateparser
 from googleapiclient.discovery import build
@@ -12,6 +13,8 @@ import oauth2client as oa
 def main(db_path='roast_data.sqlite', secret_path='client_secret.json',
          after_date=datetime.date.min.strftime('%Y/%m/%d'),
          csv_files=None):
+    con = sqlite3.connect(db_path, detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
+
     if csv_files is not None:
         pass
     else:
