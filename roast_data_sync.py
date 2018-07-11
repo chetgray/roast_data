@@ -39,6 +39,29 @@ def main(db_path='roast_data.sqlite', secret_path='client_secret.json',
             flow = oa.client.flow_from_clientsecrets(secret_path, SCOPES)
             creds = oa.tools.run_flow(flow, store)
         service = build('gmail', 'v1', http=creds.authorize(Http(cache=".cache")))
+        latest_stored_message_id = con.execute('SELECT id from message ORDER BY internal_date DESC LIMIT 1').fetchone()[0]
+        message_resource = service.users().messages()
+        list_request = message_resource.list(userId='me',
+                                             q='from:lsr@smartroaster.com '
+                                               'has:attachment '
+                                               'after:{}'.format(after_date))
+        while list_request is not None:
+            list_response = list_request.execute()
+            for message in list_response['messages']:
+                if message['id'] == latest_stored_message_id:
+                    list_request = None
+                    break
+                full_message = message_resource.get(userId='me', id=message['id']).execute()
+                con.execute('INSERT INTO message (id, snippet, internal_date, attachment_id) '
+                            'VALUES (?, ?, ?, ?)',
+                            (message['id'],
+                             full_message['snippet'],
+                             datetime.fromtimestamp(full_message['internalDate']/1000),
+                             # Pull the attachment_id from the first part with a filename
+                             next((part for part in full_message['payload']['parts'] if part['filename']), None)['body']['attachmentId']
+                            ))
+            else:
+                list_request = message_resource.list_next(list_request, list_response)
 
 
 if __name__ == '__main__':
