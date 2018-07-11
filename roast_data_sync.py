@@ -14,6 +14,19 @@ def main(db_path='roast_data.sqlite', secret_path='client_secret.json',
          after_date=datetime.date.min.strftime('%Y/%m/%d'),
          csv_files=None):
     con = sqlite3.connect(db_path, detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
+    with con: # commit on success, rollback on exception
+        con.execute('''
+            CREATE TABLE IF NOT EXISTS message (
+                id TEXT PRIMARY KEY,
+                snippet TEXT,
+                internal_date TIMESTAMP, -- Works with sqlite3.PARSE_DECLTYPES
+                attachment_id TEXT)
+            ''')
+        con.execute('''
+            CREATE TABLE IF NOT EXISTS message_data (
+                message_id TEXT PRIMARY KEY REFERENCES message(id) ON DELETE CASCADE ON UPDATE CASCADE,
+                data TEXT)
+            ''')
 
     if csv_files is not None:
         pass
