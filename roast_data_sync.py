@@ -7,7 +7,9 @@ import sqlite3
 import dateparser
 from googleapiclient.discovery import build
 from httplib2 import Http
-import oauth2client as oa
+from oauth2client import (file as oafile,
+                          client as oaclient,
+                          tools as oatools)
 
 
 def main(db_path='roast_data.sqlite', secret_path='client_secret.json',
@@ -33,11 +35,11 @@ def main(db_path='roast_data.sqlite', secret_path='client_secret.json',
     else:
         # From https://developers.google.com/gmail/api/quickstart/python
         SCOPES = 'https://www.googleapis.com/auth/gmail.readonly'
-        store = oa.file.Storage('credentials.json')
+        store = oafile.Storage('credentials.json')
         creds = store.get()
         if not creds or creds.invalid:
-            flow = oa.client.flow_from_clientsecrets(secret_path, SCOPES)
-            creds = oa.tools.run_flow(flow, store)
+            flow = oaclient.flow_from_clientsecrets(secret_path, SCOPES)
+            creds = oatools.run_flow(flow, store)
         service = build('gmail', 'v1', http=creds.authorize(Http(cache=".cache")))
         latest_stored_message_id = con.execute('SELECT id from message ORDER BY internal_date DESC LIMIT 1').fetchone()[0]
         message_resource = service.users().messages()
