@@ -28,7 +28,7 @@ def main(db_path='roast_data.sqlite', secret_path='client_secret.json',
                 data TEXT)
             ''')
 
-    if csv_files is not None:
+    if csv_files:
         pass
     else:
         # From https://developers.google.com/gmail/api/quickstart/python
