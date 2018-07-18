@@ -50,13 +50,14 @@ def main(db_path='roast_data.sqlite', secret_path='client_secret.json',
         while list_request is not None:
             list_response = list_request.execute()
             for message in list_response['messages']:
-                if message['id'] == latest_stored_message_id:
+                message_id = message['id']
+                if message_id == latest_stored_message_id:
                     list_request = None
                     break
-                full_message = message_resource.get(userId='me', id=message['id']).execute()
+                full_message = message_resource.get(userId='me', id=message_id).execute()
                 con.execute('INSERT INTO message (id, snippet, internal_date, attachment_id) '
                             'VALUES (?, ?, ?, ?)',
-                            (message['id'],
+                            (message_id,
                              full_message['snippet'],
                              datetime.datetime.fromtimestamp(int(full_message['internalDate'])/1000),
                              # Pull the attachment_id from the first part with a filename
