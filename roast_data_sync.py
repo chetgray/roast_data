@@ -41,7 +41,10 @@ def main(db_path='roast_data.sqlite', secret_path='client_secret.json',
             flow = oaclient.flow_from_clientsecrets(secret_path, SCOPES)
             creds = oatools.run_flow(flow, store)
         service = build('gmail', 'v1', http=creds.authorize(Http(cache=".cache")))
-        latest_stored_message_id = con.execute('SELECT id from message ORDER BY internal_date DESC LIMIT 1').fetchone()[0]
+        try:
+            (latest_stored_message_id,) = con.execute('SELECT id from message ORDER BY internal_date DESC LIMIT 1').fetchone()
+        except TypeError:
+            latest_stored_message_id = None
         message_resource = service.users().messages()
         list_request = message_resource.list(userId='me',
                                              q='from:lsr@smartroaster.com '
