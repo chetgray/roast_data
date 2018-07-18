@@ -58,7 +58,7 @@ def main(db_path='roast_data.sqlite', secret_path='client_secret.json',
                             'VALUES (?, ?, ?, ?)',
                             (message['id'],
                              full_message['snippet'],
-                             datetime.fromtimestamp(full_message['internalDate']/1000),
+                             datetime.datetime.fromtimestamp(int(full_message['internalDate'])/1000),
                              # Pull the attachment_id from the first part with a filename
                              next((part for part in full_message['payload']['parts'] if part['filename']), None)['body']['attachmentId']
                             ))
