@@ -58,14 +58,14 @@ def main(db_path='roast_data.sqlite', secret_path='client_secret.json',
                     list_request = None
                     break
                 full_message = message_resource.get(userId='me', id=message_id).execute()
+                # Fun little use of __next__ on a filtered generator
+                attachment_id = next((part for part in full_message['payload']['parts'] if part['filename']), None)['body']['attachmentId']
                 con.execute('INSERT INTO message (id, snippet, internal_date, attachment_id) '
                             'VALUES (?, ?, ?, ?)',
                             (message_id,
                              full_message['snippet'],
                              datetime.datetime.fromtimestamp(int(full_message['internalDate'])/1000),
-                             # Pull the attachment_id from the first part with a filename
-                             next((part for part in full_message['payload']['parts'] if part['filename']), None)['body']['attachmentId']
-                            ))
+                             attachment_id))
             else:
                 list_request = message_resource.list_next(list_request, list_response)
 
