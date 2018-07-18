@@ -66,6 +66,7 @@ def main(db_path='roast_data.sqlite', secret_path='client_secret.json',
                              full_message['snippet'],
                              datetime.datetime.fromtimestamp(int(full_message['internalDate'])/1000),
                              attachment_id))
+                con.commit()
             else:
                 list_request = message_resource.list_next(list_request, list_response)
 
