@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+from base64 import urlsafe_b64decode
 import datetime
 import sqlite3
 
@@ -66,6 +67,14 @@ def main(db_path='roast_data.sqlite', secret_path='client_secret.json',
                              full_message['snippet'],
                              datetime.datetime.fromtimestamp(int(full_message['internalDate'])/1000),
                              attachment_id))
+                attachment = message_resource.attachments().get(
+                    userId='me',
+                    messageId=message_id,
+                    id=attachment_id).execute()
+                data = urlsafe_b64decode(attachment['data']).decode()
+                con.execute('INSERT INTO message_data (message_id, data) '
+                            'VALUES (?, ?)',
+                            (message_id, data))
                 con.commit()
             else:
                 list_request = message_resource.list_next(list_request, list_response)
