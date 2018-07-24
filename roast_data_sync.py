@@ -15,6 +15,7 @@ from oauth2client import (file as oafile,
 
 def main(db_path='roast_data.sqlite', secret_path='client_secret.json',
          after_date=datetime.date.min.strftime('%Y/%m/%d'),
+         before_date=datetime.date.max.strftime('%Y/%m/%d'),
          csv_files=None):
     con = sqlite3.connect(db_path, detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
     with con: # commit on success, rollback on exception
@@ -50,7 +51,8 @@ def main(db_path='roast_data.sqlite', secret_path='client_secret.json',
         list_request = message_resource.list(userId='me',
                                              q='from:lsr@smartroaster.com '
                                                'has:attachment '
-                                               'after:{}'.format(after_date))
+                                               f'after:{after_date} '
+                                               f'before:{before_date}')
         while list_request is not None:
             list_response = list_request.execute()
             for message in list_response['messages']:
@@ -88,11 +90,15 @@ if __name__ == '__main__':
     parser.add_argument('--secret', dest='secret_path', default='client_secret.json',
                         help="OAuth client ID file")
     parser.add_argument('--after', dest='after_date',
-                        default=datetime.date.min.strftime('%Y/%m/%d'),
+                        default=datetime.date.min,
+                        type=lambda s: dateparser.parse(s).strftime('%Y/%m/%d'))
+    parser.add_argument('--before', dest='before_date',
+                        default=datetime.date.max,
                         type=lambda s: dateparser.parse(s).strftime('%Y/%m/%d'))
     parser.add_argument('csv_files', nargs='*', type=argparse.FileType('r'),
                         help="CSV file(s) to import")
 
     args = parser.parse_args()
     main(db_path=args.db_path, secret_path=args.secret_path,
-         after_date=args.after_date, csv_files=args.csv_files)
+         after_date=args.after_date, before_date=args.before_date,
+         csv_files=args.csv_files)
