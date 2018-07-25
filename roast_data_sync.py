@@ -51,10 +51,6 @@ def main(db_path='roast_data.sqlite', secret_path='client_secret.json',
             flow = oaclient.flow_from_clientsecrets(secret_path, SCOPES)
             creds = oatools.run_flow(flow, store)
         service = build('gmail', 'v1', http=creds.authorize(Http(cache=".cache")))
-        try:
-            (latest_stored_message_id,) = con.execute('SELECT id from message ORDER BY internal_date DESC LIMIT 1').fetchone()
-        except TypeError:
-            latest_stored_message_id = None
         message_resource = service.users().messages()
         list_request = message_resource.list(userId='me',
                                              q='from:lsr@smartroaster.com '
@@ -65,9 +61,12 @@ def main(db_path='roast_data.sqlite', secret_path='client_secret.json',
             list_response = list_request.execute()
             for message in list_response['messages']:
                 message_id = message['id']
-                if message_id == latest_stored_message_id:
-                    list_request = None
-                    break
+                row = con.execute('SELECT *'
+                                  '  FROM message'
+                                  '  WHERE id == ?',
+                                  (message_id,)).fetchone()
+                if row is not None:
+                    continue
                 full_message = message_resource.get(userId='me', id=message_id).execute()
                 # Fun little use of __next__ on a filtered generator
                 attachment_id = next((part for part in full_message['payload']['parts'] if part['filename']), None)['body']['attachmentId']
