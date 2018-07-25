@@ -61,20 +61,24 @@ def main(db_path='roast_data.sqlite', secret_path='client_secret.json',
             list_response = list_request.execute()
             for message in list_response['messages']:
                 message_id = message['id']
-                row = con.execute('SELECT *'
+                print(message_id, end=' ')
+                row = con.execute('SELECT internal_date'
                                   '  FROM message'
                                   '  WHERE id == ?',
                                   (message_id,)).fetchone()
                 if row is not None:
+                    print(f"{row[0]} exists")
                     continue
                 full_message = message_resource.get(userId='me', id=message_id).execute()
                 # Fun little use of __next__ on a filtered generator
                 attachment_id = next((part for part in full_message['payload']['parts'] if part['filename']), None)['body']['attachmentId']
+                internal_date = datetime.datetime.fromtimestamp(int(full_message['internalDate'])/1000)
+                print(f"{internal_date} downloading...")
                 con.execute('INSERT INTO message (id, snippet, internal_date, attachment_id) '
                             'VALUES (?, ?, ?, ?)',
                             (message_id,
                              full_message['snippet'],
-                             datetime.datetime.fromtimestamp(int(full_message['internalDate'])/1000),
+                             internal_date,
                              attachment_id))
                 attachment = message_resource.attachments().get(
                     userId='me',
