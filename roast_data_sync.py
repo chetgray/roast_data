@@ -13,11 +13,7 @@ from oauth2client import (file as oafile,
                           tools as oatools)
 
 
-def main(db_path='roast_data.sqlite', secret_path='client_secret.json',
-         after_date=datetime.date.min.strftime('%Y/%m/%d'),
-         before_date=datetime.date.max.strftime('%Y/%m/%d'),
-         csv_files=None):
-    con = sqlite3.connect(db_path, detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
+def create_tables(con):
     with con: # commit on success, rollback on exception
         con.execute('''
             CREATE TABLE IF NOT EXISTS message (
@@ -31,6 +27,14 @@ def main(db_path='roast_data.sqlite', secret_path='client_secret.json',
                 message_id TEXT PRIMARY KEY REFERENCES message(id) ON DELETE CASCADE ON UPDATE CASCADE,
                 data TEXT)
             ''')
+
+
+def main(db_path='roast_data.sqlite', secret_path='client_secret.json',
+         after_date=datetime.date.min.strftime('%Y/%m/%d'),
+         before_date=datetime.date.max.strftime('%Y/%m/%d'),
+         csv_files=None):
+    con = sqlite3.connect(db_path, detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
+    create_tables(con)
 
     if csv_files:
         pass
