@@ -29,6 +29,10 @@ def create_tables(con):
             ''')
 
 
+def import_csvs(con, csv_files):
+    raise NotImplementedError
+
+
 def main(db_path='roast_data.sqlite', secret_path='client_secret.json',
          after_date=datetime.date.min.strftime('%Y/%m/%d'),
          before_date=datetime.date.max.strftime('%Y/%m/%d'),
@@ -37,7 +41,7 @@ def main(db_path='roast_data.sqlite', secret_path='client_secret.json',
     create_tables(con)
 
     if csv_files:
-        pass
+        import_csvs(con, csv_files)
     else:
         # From https://developers.google.com/gmail/api/quickstart/python
         SCOPES = 'https://www.googleapis.com/auth/gmail.readonly'
@@ -100,7 +104,7 @@ if __name__ == '__main__':
                         default=datetime.date.max,
                         type=lambda s: dateparser.parse(s).strftime('%Y/%m/%d'))
     parser.add_argument('csv_files', nargs='*', type=argparse.FileType('r'),
-                        help="CSV file(s) to import")
+                        help="**NOT IMPLEMENTED** CSV file(s) to import")
 
     args = parser.parse_args()
     main(db_path=args.db_path, secret_path=args.secret_path,
