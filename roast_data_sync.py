@@ -34,11 +34,11 @@ def import_csvs(con, csv_files):
 
 
 def sync_emails(con, secret_path, after_date, before_date):
-    # From https://developers.google.com/gmail/api/quickstart/python
-    SCOPES = 'https://www.googleapis.com/auth/gmail.readonly'
     store = oafile.Storage('credentials.json')
     creds = store.get()
     if not creds or creds.invalid:
+        # From https://developers.google.com/gmail/api/quickstart/python
+        SCOPES = 'https://www.googleapis.com/auth/gmail.readonly'
         flow = oaclient.flow_from_clientsecrets(secret_path, SCOPES)
         creds = oatools.run_flow(flow, store)
     service = build('gmail', 'v1', http=creds.authorize(Http(cache=".cache")))
